@@ -1,0 +1,9 @@
+<svg width="240" height="80" viewBox="0 0 240 80" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .git { fill: #1a1a1a; font-weight: bold; }
+    .gk  { fill: #00cc66; font-weight: bold; }
+    text { font-family: 'Segoe UI', 'Arial', sans-serif; font-size: 64px; }
+  </style>
+  <text x="0" y="60" class="git">git</text>
+  <text x="100" y="60" class="gk">GK</text>
+</svg>
