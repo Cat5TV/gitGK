@@ -125,6 +125,29 @@ Make sure to include:
 
 ---
 
+
+---
+
+## 🌐 Update Host IP or Use a Domain
+
+If you're deploying a pre-built image, or the IP of your gitGK server otherwise changes (such as when cloning a VM), or if you want to use a domain instead of an IP address, use the included utility script:
+
+```bash
+wget https://raw.githubusercontent.com/Cat5TV/gitGK/refs/heads/main/gitgk-host.sh
+chmod +x gitgk-host.sh
+sudo ./gitgk-host.sh
+```
+
+This script:
+- Detects and replaces the old IP or hostname in both:
+  - `/etc/gitea/app.ini`
+  - `/etc/nginx/sites-available/gitea`
+- Allows you to enter a domain name instead of using an IP
+- Automatically restarts Gitea and reloads NGINX
+
+This is especially useful if your VM gets a new IP or if you bind your gitGK appliance to DNS.
+
+
 ## 📜 License
 
 Licensed under the **Apache License 2.0**  
