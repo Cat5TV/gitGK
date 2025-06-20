@@ -68,8 +68,19 @@ chmod -R 750 /var/lib/gitea
 chmod 770 /etc/gitea
 
 echo "Installing Gitea binary..."
-wget -q -O /usr/local/bin/gitea "$GITEA_BINARY_URL"
-chmod +x /usr/local/bin/gitea
+echo "Downloading Gitea binary..."
+wget -q --show-progress -O /usr/local/bin/gitea "$GITEA_BINARY_URL"
+
+if [[ ! -x /usr/local/bin/gitea ]]; then
+  chmod +x /usr/local/bin/gitea
+fi
+
+if ! /usr/local/bin/gitea --version &>/dev/null; then
+  echo "Failed to install Gitea. Check your network connection or the URL."
+  exit 1
+else
+  echo "Gitea installed: version $(/usr/local/bin/gitea --version)"
+fi
 
 echo "Creating Gitea systemd service..."
 cat > /etc/systemd/system/gitea.service <<EOF
