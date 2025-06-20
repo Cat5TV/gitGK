@@ -29,7 +29,7 @@ GITEA_USER="gitea"
 GITEA_DB="gitea"
 GITEA_DB_USER="gitea"
 GITEA_DB_PASS="$(openssl rand -base64 32)"
-GITEA_BINARY_URL="https://dl.gitea.io/gitea/latest/gitea-linux-amd64"
+GITEA_VERSION="1.24.1"
 
 # === Confirm root privileges ===
 if [ "$(id -u)" -ne 0 ]; then
@@ -69,6 +69,7 @@ chmod 770 /etc/gitea
 
 echo "Installing Gitea binary..."
 echo "Downloading Gitea binary..."
+GITEA_BINARY_URL="https://dl.gitea.com/gitea/1.24.1/gitea-${GITEA_VERSION}-linux-amd64"
 wget -q --show-progress -O /usr/local/bin/gitea "$GITEA_BINARY_URL"
 
 if [[ ! -x /usr/local/bin/gitea ]]; then
