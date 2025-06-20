@@ -23,7 +23,7 @@
 ### Step 1: Download the script
 
 ```bash
-wget https://raw.githubusercontent.com/Cat5TV/gitGeek/refs/heads/main/install-gitgk.sh
+wget https://raw.githubusercontent.com/Cat5TV/gitGK/refs/heads/main/install-gitgk.sh
 chmod +x install-gitgk.sh
 ```
 
