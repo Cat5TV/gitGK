@@ -20,7 +20,7 @@
 
 ## 🛠️ Installation
 
-### Step 1: Download the script
+### Step 1: Download the Installer
 
 ```bash
 wget https://raw.githubusercontent.com/Cat5TV/gitGK/refs/heads/main/install-gitgk.sh
@@ -41,6 +41,18 @@ Or just use your server's IP:
 sudo ./install-gitgk.sh
 ```
 
+This will install:
+- Git
+- Gitea (latest release)
+- MariaDB
+- NGINX (preconfigured for secure web UI access)
+- Automatic security updates
+
+It will also:
+- Create system users
+- Set up services with `systemd`
+- Launch the Gitea web UI (default port: 3000 or as configured)
+
 ---
 
 ## 📂 Post-Install Info
@@ -53,14 +65,63 @@ sudo ./install-gitgk.sh
 
 ---
 
-## 🛡️ Security & Backups
+## 🔀 Step 3 (Optional): Move gitGK Data to External Disk
+
+You can move all persistent gitGK data (repos + database) to a mounted external volume, such as a second VHD.
+
+This step is for advanced users only, and the following commands are only examples.
+
+### Step-by-step:
+
+1. Mount your external storage to a path like `/mnt/gitgk-data`:
+```bash
+sudo mount /dev/sdb1 /mnt/gitgk-data
+```
+
+2. Run the migration script:
+```bash
+wget https://raw.githubusercontent.com/Cat5TV/gitGK/refs/heads/main/gitgk-datamove.sh
+chmod +x gitgk-datamove.sh
+sudo ./gitgk-datamove.sh /mnt/gitgk-data
+```
+
+This will:
+- Stop services
+- Move Gitea data and MariaDB data to the mounted volume
+- Update the MariaDB config
+- Replace original data folders with symlinks
+- Restart services
+
+⚠️ **IMPORTANT**  
+You must add the mount to `/etc/fstab` to ensure it is mounted again after reboot.  
+Failing to do so will prevent gitGK from starting after a reboot.
+
+Example `/etc/fstab` entry:
+```
+/dev/sdb1  /mnt/gitgk-data  ext4  defaults  0  2
+```
+
+---
+
+## 🛡️ Security
 
 - Unattended security updates are **enabled**
-- All ports other than 22 and 80/443 can be firewalled off
-- Recommended backups:
-  - `/var/lib/gitea/`
-  - `/etc/gitea/`
-  - MariaDB `gitea` DB (daily `mysqldump`)
+- MariaDB runs with a strong root password (generated during install)
+- Gitea runs under a limited system user
+- All services are managed with `systemd`
+- A firewall is recommended (not configured by default)
+- Automatic security updates are enabled
+
+---
+
+## 🔄 Backups
+
+You can include this server in your existing `rdiff-backup` or snapshot routines.  
+
+Make sure to include:
+- `/var/lib/gitea` (or your mounted data location)
+- `/var/lib/mysql` (or your mounted data location)
+- `/etc/gitea/` and `/etc/mysql/`
 
 ---
 
