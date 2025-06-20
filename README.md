@@ -1,8 +1,10 @@
 # gitGK Git Appliance
 
-**gitGK** is a secure, self-hosted Git appliance based on Gitea, pre-configured to run on Debian Linux. It was created by Robbie Ferguson at **Category5 TV Network** to provide a fast, open-source alternative to GitHub and GitLab — with full control and zero vendor lock-in.
-
 ![gitGK Logo](./img/gitGK.svg)
+
+**gitGK** is a completely self-contained git server with no cloud dependency. It's also private and secure... your code never leaves your system. Whether you're developing software, maintaining configs, or tracking changes to any file-based workflow, gitGK is the cleanest, most efficient way to bring Git versioning in-house.
+
+Based on Gitea and pre-configured to run on Debian Linux, gitGK was created by Robbie Ferguson at **Category5 TV Network** to provide a fast, open-source alternative to GitHub and GitLab with full control and zero vendor lock-in.
 
 ---
 
