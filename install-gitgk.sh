@@ -109,12 +109,11 @@ systemctl enable --now gitea
 
 # === MariaDB Setup ===
 echo "Setting up MariaDB database..."
-mysql <<EOF
-CREATE DATABASE IF NOT EXISTS $GITEA_DB CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+mysql -e "
+CREATE DATABASE IF NOT EXISTS \`$GITEA_DB\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER IF NOT EXISTS '$GITEA_DB_USER'@'localhost' IDENTIFIED BY '$GITEA_DB_PASS';
-GRANT ALL PRIVILEGES ON $GITEA_DB.* TO '$GITEA_DB_USER'@'localhost';
-FLUSH PRIVILEGES;
-EOF
+GRANT ALL PRIVILEGES ON \`$GITEA_DB\`.* TO '$GITEA_DB_USER'@'localhost';
+FLUSH PRIVILEGES;"
 
 echo "$GITEA_DB_PASS" > /root/gitea-db-password.txt
 chmod 600 /root/gitea-db-password.txt
