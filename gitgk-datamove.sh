@@ -53,48 +53,54 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
+
+# === Determine what to move ===
+echo ""
+read -p "Would you like to move Gitea repository data to $TARGET_BASE? [y/N]: " MOVE_GITEA
+read -p "Would you like to move MariaDB database data to $TARGET_BASE? [y/N]: " MOVE_MYSQL
+
 echo "Stopping services..."
 systemctl stop gitea || true
 systemctl stop mariadb || true
 
-echo "Creating destination directories..."
-mkdir -p "$GITEA_DEST"
-mkdir -p "$MYSQL_DEST"
+# === Gitea Data ===
+if [[ "$MOVE_GITEA" =~ ^[Yy]$ ]]; then
+  if mountpoint -q "$GITEA_SRC" || df "$GITEA_SRC" | grep -q "$TARGET_BASE"; then
+    echo "Gitea data already resides on the target mount. Skipping Gitea move."
+  else
+    echo "Moving Gitea data to $GITEA_DEST"
+    mkdir -p "$GITEA_DEST"
+    rsync -av "$GITEA_SRC/" "$GITEA_DEST/"
+    chown -R gitea:gitea "$GITEA_DEST"
+    mv "$GITEA_SRC" "${GITEA_SRC}.bak"
+    ln -s "$GITEA_DEST" "$GITEA_SRC"
+  fi
+else
+  echo "Skipping Gitea data move."
+fi
 
-echo "Moving Gitea data to $GITEA_DEST"
-rsync -av "$GITEA_SRC/" "$GITEA_DEST/"
-chown -R gitea:gitea "$GITEA_DEST"
+# === MariaDB Data ===
+if [[ "$MOVE_MYSQL" =~ ^[Yy]$ ]]; then
+  echo "Moving MariaDB data to $MYSQL_DEST"
+  mkdir -p "$MYSQL_DEST"
+  rsync -av "$MYSQL_SRC/" "$MYSQL_DEST/"
+  chown -R mysql:mysql "$MYSQL_DEST"
+  cp "$MYSQL_CONFIG" "$MYSQL_CONFIG.bak"
+  sed -i "s|^datadir\s*=.*|datadir = $MYSQL_DEST|" "$MYSQL_CONFIG"
+  mv "$MYSQL_SRC" "${MYSQL_SRC}.bak"
+  ln -s "$MYSQL_DEST" "$MYSQL_SRC"
+else
+  echo "Skipping MariaDB data move."
+fi
 
-echo "Moving MariaDB data to $MYSQL_DEST"
-rsync -av "$MYSQL_SRC/" "$MYSQL_DEST/"
-chown -R mysql:mysql "$MYSQL_DEST"
-
-echo "Updating MariaDB config..."
-cp "$MYSQL_CONFIG" "$MYSQL_CONFIG.bak"
-sed -i "s|^datadir\s*=.*|datadir = $MYSQL_DEST|" "$MYSQL_CONFIG"
-
-echo "Backing up original directories..."
-mv "$GITEA_SRC" "${GITEA_SRC}.bak"
-mv "$MYSQL_SRC" "${MYSQL_SRC}.bak"
-
-echo "Creating symlinks..."
-ln -s "$GITEA_DEST" "$GITEA_SRC"
-ln -s "$MYSQL_DEST" "$MYSQL_SRC"
-
+# === Restart services ===
 echo "Starting services..."
 systemctl start mariadb
 systemctl start gitea
 
 echo ""
-echo "✅ All gitGK data has been moved to $TARGET_BASE"
-echo "Backups stored as:"
-echo " - ${GITEA_SRC}.bak"
-echo " - ${MYSQL_SRC}.bak"
-echo ""
-echo "IMPORTANT: To ensure the mounted disk is available after reboot,"
-echo "           you must add an entry to /etc/fstab."
-echo ""
+echo "Selected gitGK data has been moved to $TARGET_BASE (if requested)"
+echo "IMPORTANT: Ensure this mount is present before reboot or services may fail."
 echo "Example fstab line:"
 echo "  /dev/sdX1  $TARGET_BASE  ext4  defaults  0  2"
-echo ""
-echo "Failure to do this before rebooting may prevent gitGK from starting."
+
